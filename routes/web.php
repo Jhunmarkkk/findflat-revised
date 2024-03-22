@@ -1,0 +1,170 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\ContractController;
+use App\Http\Controllers\PropertyController;
+use Illuminate\Support\Facades\Input;
+use App\Http\Controllers\SearchController;
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+// Route::get('/search', [SearchController::class, 'searchByLocation'])->name('searchByLocation');
+
+
+
+Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
+
+Route::get('/properties/filter', [PropertyController::class, 'filterProperties'])->name('properties.filter');
+
+Route::get('/apply-filters', [PropertyController::class, 'applyFilters'])->name('apply_filters');
+Route::post('/apply-bedrooms-filter', [PropertyController::class, 'applyBedroomsFilter'])->name('apply_bedrooms_filter');
+
+Route::post('/apply-bathrooms-filter', [PropertyController::class, 'applyBathroomsFilter'])->name('apply_bathrooms_filter');
+
+Route::post('/apply-amenities-filters', [PropertyController::class, 'applyAmenitiesFilters'])->name('applyAmenitiesFilters');
+
+Route::post('/apply_location_filter', [PropertyController::class,'applyLocationFilter'])->name('apply_location_filter');
+
+
+
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('chat', function () {
+    return view('chat');
+});
+Route::get('sample', function () {
+    return view('sample');
+});
+
+/* Route::get('viewproperty', function () {
+    return view('viewproperty');
+}); */
+
+//Search route
+//Route::get('/searchproperty', [PropertyController::class, 'searchproperty'])->name('searchproperty');
+//Route::get('/searchproperty', 'PropertyController@searchproperty')->name('searchproperty');
+
+
+Route::get('/chat/{property}', [AccountController::class, 'showChat'])->name('chat.show');
+Route::post('/chat/send', [AccountController::class, 'sendMessage'])->name('chat.send');
+
+// Route::get('/chat', [AccountController::class, 'showChat'])->name('chat.show');
+// Route::post('/send-message', [AccountController::class, 'sendMessage'])->name('chat.sendMessage');
+
+// Routes for Login and Register
+Route::middleware(['web'])->group(function () {
+    Route::post('login', [AccountController::class, 'loginPost'])->name('login.post');
+    Route::get('login', [AccountController::class, 'login'])->name('login');
+});
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('logout', [AccountController::class, 'logout'])->name('logout');
+});
+
+Route::prefix('register')->group(function () {
+    Route::get('landlord', [AccountController::class, 'landlordregister'])->name('landlordregister');
+    Route::get('tenant', [AccountController::class, 'tenantregister'])->name('tenantregister');
+    Route::post('landlord', [AccountController::class, 'llregister'])->name('landlordregister.post');
+    Route::post('tenant', [AccountController::class, 'ttregister'])->name('tenantregister.post');
+});
+
+//tenant
+Route::prefix('tenant')->middleware(['auth', 'tenant'])->group(function () {
+    Route::get('index', [PropertyController::class, 'index'])->name('index');
+    Route::post('index', [PropertyController::class, 'showindex'])->name('showindex.post')->middleware('verified.owner');
+
+    Route::get('showproperty', [PropertyController::class, 'showproperty'])->name('showproperty');
+    Route::get('searchproperty', [PropertyController::class, 'searchproperty'])->name('searchproperty');
+    Route::post('showproperty', [PropertyController::class, 'showrentals'])->name('showrentals.post');
+
+    Route::get('/viewproperty/{id}', [PropertyController::class, 'viewproperty'])->name('viewproperty');
+    Route::post('viewproperty', [PropertyController::class, 'viewone'])->name('viewone.post');
+
+    Route::get('aboutus', [AccountController::class, 'aboutus'])->name('aboutus');
+
+    Route::get('profile',[ContractController::class, 'profile'])->name('profile');
+    //Route::match(['get', 'post'], 'profile', [AccountController::class, 'profile'])->name('profile');
+
+    Route::get('/download-contract/{id}', [ContractController::class, 'downloadContract'])->name('tenant.download.contract');
+    Route::post('/tupload-contract/{id}', [ContractController::class, 'uploadContract'])->name('tenant.upload.contract');
+
+    Route::post('inquire', [ContractController::class, 'inquire'])->name('inquire.post');
+});
+
+// Routes for Owner
+Route::prefix('owner')->middleware(['auth', 'owner'])->group(function () {
+
+    Route::post('/properties/{id}/restore', [AccountController::class, 'restore'])->name('properties.restore');
+
+    Route::get('manageContract', [ContractController::class, 'manageContract'])->name('manageContract');
+
+    Route::get('/showpayment', [ContractController::class, 'showpayment'])->name('showpayment');
+
+    Route::post('/payment/{contractId}', [ContractController::class, 'submitpayment'])->name('payment.submit');
+    Route::get('/paymentform/{contractId}', [ContractController::class, 'paymentform'])->name('paymentform');
+
+    Route::post('paymentformPost', [ContractController::class, 'paymentformPost'])->name('paymentformPost');
+    Route::get('createproperty', [PropertyController::class, 'createproperty'])->name('createproperty')->middleware('verified.owner');
+    Route::post('createproperty', [PropertyController::class, 'propertylisting'])->name('propertylisting.post');
+
+    Route::get('imagesproperty', [PropertyController::class, 'imagesproperty'])->name('imagesproperty')->middleware('verified.owner');;
+    Route::post('imagesproperty', [PropertyController::class, 'addimages'])->name('addimages.post');
+
+    Route::get('/{property}/updateproperty', [PropertyController::class, 'updateproperty'])->name('property.updateproperty');
+    Route::put('/updateproperty/{id}', [PropertyController::class, 'updatepropertyform'])->name('properties.updatepropertyform');
+    Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
+
+    Route::post('/inquiries/{id}/reject', [ContractController::class, 'rejectInquiry'])->name('inquiries.reject');
+    Route::post('/inquiries/{id}/accept', [ContractController::class, 'acceptInquiry'])->name('inquiries.accept');
+
+    Route::get('/tenantcontract', [ContractController::class, 'tenantcontract'])->name('tenantcontract');
+    Route::post('/tenantcontract/{inquiry_id}', [ContractController::class, 'createcontract'])->name('createcontract');
+    Route::match(['get', 'post'], 'user', [AccountController::class, 'users'])->name('user');
+
+    //Route::get('user',[AccountController::class, 'users'])->name('user');
+    //userupdate        
+    //Route::post('userupdate',[AccountController::class, 'userupdate'])->name('userupdate');
+
+    Route::get('inquiriesform', [ContractController::class, 'inquiriesform'])->name('inquiriesform');
+});
+
+Route::get('adminregister',[AccountController::class, 'adminregister'])->name('adminregister');
+Route::post('adminregister', [AccountController::class, 'adregister'])->name('adminregister.post');
+
+
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('adminManagement', [AdminController::class, 'adminManagement'])->name('adminManagement');
+    Route::get('adminVerification', [AdminController::class, 'adminVerification'])->name('adminVerification');
+    Route::get('adminInterface', [AdminController::class, 'adminInterface'])->name('adminInterface');
+    Route::get('/admin/manage-property', [AdminController::class, 'adminManageProperty'])->name('adminproperty');
+    Route::get('/admin/manage-tenant', [AdminController::class, 'adminManageTenant'])->name('admintenant');
+    Route::patch('owner/{id}', [AdminController::class, 'verifylandlord'])->name('admin.verify.landlord');
+    Route::patch('property/{id}', [AdminController::class, 'verifyproperty'])->name('admin.verify.property');
+
+    Route::delete('/owners/{ownerDelete}', [AdminController::class, 'destroyOwner'])->name('admin.destroy.owner');
+    Route::delete('/tenants/{tenantDelete}', [AdminController::class, 'destroyTenant'])->name('admin.destroy.tenant');
+    Route::delete('/properties/{propertyDelete}', [AdminController::class, 'destroyProperty'])->name('admin.destroy.property');
+    Route::get('/download/documents/{ownerId}', [AdminController::class, 'downloadAllDocuments'])->name('download.documents');
+    Route::get('/download/{documentPath}', [AdminController::class, 'download'])->name('download.document');
+
+});
+
+
+
+
+
+
+
