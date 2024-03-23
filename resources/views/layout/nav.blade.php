@@ -23,13 +23,6 @@
                          <span class="ml-6 text-gray-600 text-sm">Property Type</span>
                      </a>
 
-
-                     <a href="showproperty#price-id" class="flex items-center px-6 py-3 hover:bg-gray-100 transition">
-                         <i class="fa-solid fa-peso-sign w-5 h-5 object-contain"></i>
-                         <span class="ml-6 text-gray-600 text-sm">Price</span>
-                     </a>
-
-
                      <a href="showproperty#bedrooms-id" class="flex items-center px-6 py-3 hover:bg-gray-100 transition">
                          <i class="fa-solid fa-bed w-5 h-5 object-contain"></i>
                          <span class="ml-6 text-gray-600 text-sm">Bedrooms</span>
@@ -40,13 +33,6 @@
                          <i class="fa-solid fa-bath w-5 h-5 object-contain"></i>
                          <span class="ml-6 text-gray-600 text-sm">Bathrooms</span>
                      </a>
-
-
-                     <a href="showproperty#floor-id" class="flex items-center px-6 py-3 hover:bg-gray-100 transition">
-                         <i class="fa-solid fa-ruler-combined w-5 h-5 object-contain"></i>
-                         <span class="ml-6 text-gray-600 text-sm">Floor Area</span>
-                     </a>
-
 
                      <a href="showproperty#amenities-id" class="flex items-center px-6 py-3 hover:bg-gray-100 transition">
                          <i class="fa-solid fa-person-shelter w-5 h-5 object-contain"></i>
